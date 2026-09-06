@@ -348,15 +348,15 @@ function Step0({ onArrive }: { onArrive: () => void }) {
   return (
     <div className="flex flex-col min-h-full">
       {/* リード文 */}
-      <div className="pt-5 pb-4">
+      <div className="pt-2 pb-4">
         <p className="text-[13px] text-muted mb-1">T conference 2026 提案デモ</p>
         <p className="text-[20px] font-bold text-ink leading-snug">
-          待たされた時間は、
+          待った時間は、
           <br />
           今どこにも記録されていない
         </p>
         <p className="text-[15px] text-ink leading-relaxed mt-3">
-          トラックドライバーが荷主の倉庫で待たされた時間や、契約になかった作業を自動で記録し、そのまま請求できるようにする仕組みです。
+          トラックドライバーが荷主の倉庫で待った時間や、契約になかった作業を自動で記録し、そのまま請求できるようにする仕組みです。
           <br />
           実際にドライバーとして1回の配送を体験できます。
         </p>
@@ -1072,35 +1072,71 @@ function CostRow({
 }
 
 function StepIndicator({ step }: { step: DriverStep }) {
-  const steps = [
-    { label: "待つ", active: step >= 0 && step <= 2 },
-    { label: "契約外の作業を選ぶ", active: step === 3 },
-    { label: "荷主の画面を見る", active: step === 4 },
-  ];
+  // 0,1,2 → index 0 active; 3 → index 1 active; 4 → index 2 active
+  const activeIndex = step <= 2 ? 0 : step === 3 ? 1 : 2;
+  const labels = ["待つ", "契約外の作業を選ぶ", "荷主の画面を見る"];
 
   return (
-    <div className="px-4 pt-3 pb-2 select-none" style={{ cursor: "default" }}>
-      <div className="flex">
-        {steps.map((s, i) => (
+    <div
+      className="px-6 pt-3 pb-2 select-none"
+      style={{ cursor: "default" }}
+    >
+      {/* dots + lines */}
+      <div className="flex items-center">
+        {labels.map((_, i) => {
+          const done = i < activeIndex;
+          const current = i === activeIndex;
+          return (
+            <div key={i} className="flex-1 flex items-center">
+              {/* dot */}
+              <div
+                className={`shrink-0 w-3 h-3 rounded-full flex items-center justify-center ${
+                  done || current ? "bg-accent" : "bg-[#E5E7EB]"
+                }`}
+                style={
+                  current
+                    ? { boxShadow: "0 0 0 4px rgba(14,124,134,0.2)" }
+                    : undefined
+                }
+              >
+                {done && (
+                  <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M2.5 6L5 8.5L9.5 3.5"
+                      stroke="#fff"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
+              {/* line (not after last) */}
+              {i < labels.length - 1 && (
+                <div
+                  className={`flex-1 h-0.5 ${
+                    i < activeIndex ? "bg-accent" : "bg-[#E5E7EB]"
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {/* labels */}
+      <div className="flex mt-1.5">
+        {labels.map((label, i) => (
           <div key={i} className="flex-1 text-center">
             <p
-              className={`text-[13px] leading-tight mb-1.5 ${
-                s.active ? "font-bold text-accent-dark" : "text-muted"
+              className={`text-[12px] leading-tight ${
+                i === activeIndex
+                  ? "font-bold text-accent-dark"
+                  : "text-muted"
               }`}
             >
-              {s.label}
+              {label}
             </p>
           </div>
-        ))}
-      </div>
-      <div className="flex gap-1">
-        {steps.map((s, i) => (
-          <div
-            key={i}
-            className={`flex-1 h-1 rounded-full ${
-              s.active ? "bg-accent" : "bg-[#E5E7EB]"
-            }`}
-          />
         ))}
       </div>
     </div>
