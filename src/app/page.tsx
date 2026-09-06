@@ -155,17 +155,6 @@ export default function Home() {
     });
   };
 
-  const progressPct =
-    driverStep === 0
-      ? 0
-      : driverStep === 1
-        ? 20
-        : driverStep === 2
-          ? 50
-          : driverStep === 3
-            ? 75
-            : 100;
-
   const shipperTabActive = isSent;
   const driverTabHighlight = isConfirmed;
   const showGoToShipper = isSent && driverStep === 4;
@@ -247,7 +236,6 @@ export default function Home() {
             elapsedMin={elapsedMin}
             selectedExtras={selectedExtras}
             sendButtonPressed={sendButtonPressed}
-            progressPct={progressPct}
             showGoToShipper={showGoToShipper}
             goToShipperPulse={goToShipperPulse}
             onArrive={handleArrive}
@@ -282,7 +270,6 @@ function DriverView({
   elapsedMin,
   selectedExtras,
   sendButtonPressed,
-  progressPct,
   showGoToShipper,
   goToShipperPulse,
   onArrive,
@@ -296,7 +283,6 @@ function DriverView({
   elapsedMin: number;
   selectedExtras: Set<string>;
   sendButtonPressed: boolean;
-  progressPct: number;
   showGoToShipper: boolean;
   goToShipperPulse: boolean;
   onArrive: () => void;
@@ -318,15 +304,8 @@ function DriverView({
         </p>
       </div>
 
-      {/* progress bar */}
-      {step > 0 && (
-        <div className="h-1 bg-gray-200">
-          <div
-            className="h-full bg-accent transition-all duration-500"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-      )}
+      {/* step indicator */}
+      <StepIndicator step={step} />
 
       <div className="flex-1 px-4 pt-4 pb-6 space-y-4">
         {step === 0 && <Step0 onArrive={onArrive} />}
@@ -369,56 +348,55 @@ function Step0({ onArrive }: { onArrive: () => void }) {
   return (
     <div className="flex flex-col min-h-full">
       {/* リード文 */}
-      <div className="pt-6 pb-5">
-        <p className="text-sm text-muted mb-1">1分で体験できるデモです</p>
+      <div className="pt-5 pb-4">
+        <p className="text-[13px] text-muted mb-1">T conference 2026 提案デモ</p>
         <p className="text-[20px] font-bold text-ink leading-snug">
-          トラックドライバーの1回の配送が、
+          待たされた時間は、
           <br />
-          そのまま請求の根拠になるまで
+          今どこにも記録されていない
+        </p>
+        <p className="text-[15px] text-ink leading-relaxed mt-3">
+          トラックドライバーが荷主の倉庫で待たされた時間や、契約になかった作業を自動で記録し、そのまま請求できるようにする仕組みです。
+          <br />
+          実際にドライバーとして1回の配送を体験できます。
+        </p>
+        <p className="text-[13px] text-muted mt-2">
+          所要1分・タップするだけで進みます
         </p>
       </div>
 
-      {/* 状況カード */}
-      <div className="bg-navy rounded-[14px] p-5 my-2">
-        <p className="text-sm text-[#9EDDE3] mb-1">今回のあなた</p>
-        <p className="text-2xl font-bold text-white">トラックドライバー</p>
-        <div className="border-t border-white/20 my-3" />
-        <p className="text-base text-[#C7D0DD]">
+      {/* 状況カード（白背景） */}
+      <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-5">
+        <p className="text-[13px] text-accent">今回のあなた</p>
+        <p className="text-2xl font-bold text-ink">トラックドライバー</p>
+        <div className="border-t border-[#E5E7EB] my-3" />
+        <p className="text-base text-ink">
           ◯◯物流センター 3番バース
         </p>
-        <p className="text-base text-[#C7D0DD] mt-0.5">
+        <p className="text-base text-ink mt-0.5">
           10時の約束で荷物を届けにきました
         </p>
         <div className="flex mt-4">
           <div className="flex-1">
-            <p className="text-sm text-[#9EDDE3]">現在時刻</p>
-            <p className="text-[40px] font-bold text-white leading-none mt-1">
+            <p className="text-[13px] text-muted">現在時刻</p>
+            <p className="text-[40px] font-bold text-ink leading-none mt-1">
               9:40
             </p>
           </div>
           <div className="flex-1">
-            <p className="text-sm text-[#9EDDE3]">約束の時刻</p>
-            <p className="text-[40px] font-bold text-[#9EDDE3] leading-none mt-1">
+            <p className="text-[13px] text-muted">約束の時刻</p>
+            <p className="text-[40px] font-bold text-accent leading-none mt-1">
               10:00
             </p>
           </div>
         </div>
-        <p className="text-sm text-[#C7D0DD] mt-3">
+        <p className="text-sm text-muted mt-3">
           20分早く着いています
         </p>
       </div>
 
       {/* スペーサー */}
       <div className="flex-1 min-h-4" />
-
-      {/* 進み方 */}
-      <div className="flex items-center justify-center gap-2 text-[13px] text-muted pb-3">
-        <span>待つ</span>
-        <span className="text-gray-300">›</span>
-        <span>契約外の作業を選ぶ</span>
-        <span className="text-gray-300">›</span>
-        <span>荷主の画面を見る</span>
-      </div>
 
       {/* 到着ボタン */}
       <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))]">
@@ -1088,6 +1066,42 @@ function CostRow({
       <div className="flex items-baseline gap-3">
         <span className="text-xl font-bold text-accent">{minutes}分</span>
         <span className="text-base font-bold text-ink">{formatYen(cost)}</span>
+      </div>
+    </div>
+  );
+}
+
+function StepIndicator({ step }: { step: DriverStep }) {
+  const steps = [
+    { label: "待つ", active: step >= 0 && step <= 2 },
+    { label: "契約外の作業を選ぶ", active: step === 3 },
+    { label: "荷主の画面を見る", active: step === 4 },
+  ];
+
+  return (
+    <div className="px-4 pt-3 pb-2 select-none" style={{ cursor: "default" }}>
+      <div className="flex">
+        {steps.map((s, i) => (
+          <div key={i} className="flex-1 text-center">
+            <p
+              className={`text-[13px] leading-tight mb-1.5 ${
+                s.active ? "font-bold text-accent-dark" : "text-muted"
+              }`}
+            >
+              {s.label}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-1">
+        {steps.map((s, i) => (
+          <div
+            key={i}
+            className={`flex-1 h-1 rounded-full ${
+              s.active ? "bg-accent" : "bg-[#E5E7EB]"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
