@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 現場レシート デモ
 
-## Getting Started
+T conference 2026 のプレゼン資料に QR コードで載せる、観客体験用デモアプリです。
+審査員がスマホで 1〜2 分触って「現場レシート」の提案内容を理解できるように作っています。
 
-First, run the development server:
+トラックドライバーの待機時間・契約外作業を自動記録し、
+「現場レシート」として運送会社と荷主の両方に同時に届ける流れを体験できます。
+
+## ローカルで起動する
 
 ```bash
+git clone https://github.com/gunetaro/genba-receipt.git
+cd genba-receipt
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで http://localhost:3000 を開きます。
+スマホ表示の確認には、DevTools のモバイルビュー（iPhone SE / 360px 幅）を使ってください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Vercel にデプロイする
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. [vercel.com](https://vercel.com) にログイン
+2. 「Add New...」→「Project」を選択
+3. 「Import Git Repository」で `gunetaro/genba-receipt` を選ぶ
+4. フレームワークは Next.js が自動検出される。設定はそのままで「Deploy」を押す
+5. デプロイ完了後、表示される URL がそのままデモ用 URL になる
 
-## Learn More
+## 技術構成
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS v4
+- 外部サービス・DB・認証なし。状態は React state のみ
+- フォント: Noto Sans JP（next/font で最適化読み込み）
