@@ -311,7 +311,7 @@ function DriverView({
       {/* header */}
       <div className="bg-navy px-5 pt-4 pb-5">
         <h1 className="text-xl font-bold text-white">
-          {step < 3 ? "配送記録" : step === 3 ? "出発前の確認" : "送信完了"}
+          {step < 3 ? "現場レシート" : step === 3 ? "出発前の確認" : "送信完了"}
         </h1>
         <p className="text-sm text-[#9EDDE3] mt-1">
           ◯◯物流センター　3番バース
@@ -367,24 +367,55 @@ function DriverView({
 /* ── Step 0 ── */
 function Step0({ onArrive }: { onArrive: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60dvh] text-center space-y-6">
-      <div className="space-y-3">
-        <p className="text-lg font-bold text-ink">
-          あなたはトラックドライバーです
+    <div className="flex flex-col gap-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      {/* 説明カード */}
+      <Card>
+        <h2 className="text-[20px] font-bold text-ink mb-2">
+          「現場レシート」を体験する
+        </h2>
+        <p className="text-base text-ink leading-relaxed">
+          トラックドライバーの1回の配送が、そのまま請求の根拠になるまでを体験できます。
         </p>
-        <p className="text-base text-muted leading-relaxed">
-          ◯◯物流センターに、
-          <br />
-          <span className="font-bold text-ink">10時の約束</span>
-          で荷物を届けにきました
+      </Card>
+
+      {/* 3ステップ予告 */}
+      <div className="flex flex-col gap-2 px-1">
+        {[
+          { n: "1", label: "待つ" },
+          { n: "2", label: "契約外の作業を選ぶ" },
+          { n: "3", label: "荷主の画面を見る" },
+        ].map((s) => (
+          <div key={s.n} className="flex items-center gap-2">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-navy text-white text-xs font-bold flex items-center justify-center">
+              {s.n}
+            </span>
+            <span className="text-sm text-ink">{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 設定カード */}
+      <div className="bg-tint rounded-[14px] px-4 py-4">
+        <p className="text-sm font-bold text-accent-dark mb-2">
+          ここからデモです
         </p>
-        <p className="text-base text-muted leading-relaxed">
-          今は<span className="font-bold text-ink">9時40分</span>。
+        <p className="text-lg text-ink leading-relaxed">
+          あなたはトラックドライバーです。
           <br />
-          20分早く着きました
+          ◯◯物流センターに、10時の約束で荷物を届けにきました。
+        </p>
+        <p className="text-2xl font-bold text-ink mt-2">
+          今は9時40分。20分早く着きました。
         </p>
       </div>
-      <BigButton label="到着した" color="#1B2A41" onClick={onArrive} />
+
+      {/* 到着ボタン */}
+      <button
+        onClick={onArrive}
+        className="w-full h-[72px] rounded-xl bg-navy text-white text-lg font-bold active:scale-95 transition-transform duration-150"
+      >
+        到着した
+      </button>
     </div>
   );
 }
