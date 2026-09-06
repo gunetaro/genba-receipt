@@ -367,55 +367,68 @@ function DriverView({
 /* ── Step 0 ── */
 function Step0({ onArrive }: { onArrive: () => void }) {
   return (
-    <div className="flex flex-col gap-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-      {/* 説明カード */}
-      <Card>
-        <h2 className="text-[20px] font-bold text-ink mb-2">
-          「現場レシート」を体験する
-        </h2>
-        <p className="text-base text-ink leading-relaxed">
-          トラックドライバーの1回の配送が、そのまま請求の根拠になるまでを体験できます。
+    <div className="flex flex-col min-h-full">
+      {/* リード文 */}
+      <div className="pt-6 pb-5">
+        <p className="text-sm text-muted mb-1">1分で体験できるデモです</p>
+        <p className="text-[20px] font-bold text-ink leading-snug">
+          トラックドライバーの1回の配送が、
+          <br />
+          そのまま請求の根拠になるまで
         </p>
-      </Card>
-
-      {/* 3ステップ予告 */}
-      <div className="flex flex-col gap-2 px-1">
-        {[
-          { n: "1", label: "待つ" },
-          { n: "2", label: "契約外の作業を選ぶ" },
-          { n: "3", label: "荷主の画面を見る" },
-        ].map((s) => (
-          <div key={s.n} className="flex items-center gap-2">
-            <span className="shrink-0 w-6 h-6 rounded-full bg-navy text-white text-xs font-bold flex items-center justify-center">
-              {s.n}
-            </span>
-            <span className="text-sm text-ink">{s.label}</span>
-          </div>
-        ))}
       </div>
 
-      {/* 設定カード */}
-      <div className="bg-tint rounded-[14px] px-4 py-4">
-        <p className="text-sm font-bold text-accent-dark mb-2">
-          ここからデモです
+      {/* 状況カード */}
+      <div className="bg-navy rounded-[14px] p-5">
+        <p className="text-sm text-[#9EDDE3] mb-1">今回のあなた</p>
+        <p className="text-2xl font-bold text-white">トラックドライバー</p>
+        <div className="border-t border-white/20 my-3" />
+        <p className="text-base text-[#C7D0DD]">
+          ◯◯物流センター 3番バース
         </p>
-        <p className="text-lg text-ink leading-relaxed">
-          あなたはトラックドライバーです。
-          <br />
-          ◯◯物流センターに、10時の約束で荷物を届けにきました。
+        <p className="text-base text-[#C7D0DD] mt-0.5">
+          10時の約束で荷物を届けにきました
         </p>
-        <p className="text-2xl font-bold text-ink mt-2">
-          今は9時40分。20分早く着きました。
+        <div className="flex mt-4">
+          <div className="flex-1">
+            <p className="text-sm text-[#9EDDE3]">現在時刻</p>
+            <p className="text-[40px] font-bold text-white leading-none mt-1">
+              9:40
+            </p>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm text-[#9EDDE3]">約束の時刻</p>
+            <p className="text-[40px] font-bold text-[#9EDDE3] leading-none mt-1">
+              10:00
+            </p>
+          </div>
+        </div>
+        <p className="text-sm text-[#C7D0DD] mt-3">
+          20分早く着いています
         </p>
+      </div>
+
+      {/* スペーサー */}
+      <div className="flex-1 min-h-4" />
+
+      {/* 進み方 */}
+      <div className="flex items-center justify-center gap-2 text-[13px] text-muted py-3">
+        <span>待つ</span>
+        <span className="text-gray-300">›</span>
+        <span>契約外の作業を選ぶ</span>
+        <span className="text-gray-300">›</span>
+        <span>荷主の画面を見る</span>
       </div>
 
       {/* 到着ボタン */}
-      <button
-        onClick={onArrive}
-        className="w-full h-[72px] rounded-xl bg-navy text-white text-lg font-bold active:scale-95 transition-transform duration-150"
-      >
-        到着した
-      </button>
+      <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <button
+          onClick={onArrive}
+          className="w-full h-[72px] rounded-xl bg-navy text-white text-lg font-bold active:scale-95 transition-transform duration-150"
+        >
+          到着した
+        </button>
+      </div>
     </div>
   );
 }
@@ -431,6 +444,7 @@ function Step1({
   const currentTime = minuteToTime(elapsedMin);
   const isPastAppointment = elapsedMin >= APPOINTMENT_MIN;
   const waitMin = isPastAppointment ? elapsedMin - APPOINTMENT_MIN : 0;
+  const waitCost = Math.round((UNIT_WAIT / 60) * waitMin);
 
   return (
     <div className="space-y-4">
@@ -452,6 +466,9 @@ function Step1({
           <p className="text-sm text-muted mt-1">
             この時間は待機に数えません
           </p>
+          <p className="text-sm text-gray-400 mt-2">
+            早着のため、まだ加算されていません
+          </p>
         </Card>
       ) : (
         <Card className="border-2 border-accent">
@@ -463,6 +480,16 @@ function Step1({
           </p>
           <p className="text-[40px] font-bold text-ink leading-none">
             {waitMin}分
+          </p>
+          <p
+            className="text-[32px] font-bold text-ink leading-none mt-2 transition-colors duration-300"
+            key={waitCost}
+            style={{ animation: "cost-flash 0.4s ease-out" }}
+          >
+            {formatYen(waitCost)}
+          </p>
+          <p className="text-[13px] text-muted mt-2">
+            待機時間料 3,800円/時 で計算しています
           </p>
         </Card>
       )}
@@ -551,15 +578,28 @@ function Step3({
         </p>
       </Card>
 
+      {/* 重量グラフ */}
       <Card>
         <div className="flex items-center gap-2 mb-3">
           <span className="inline-flex items-center justify-center w-8 h-5 rounded-full bg-accent text-white text-[10px] font-bold">
             AI
           </span>
           <span className="text-xs text-accent-dark leading-tight">
-            11:05〜11:30 に荷台の重量が段階的に減っています
+            荷台の重量変化から作業内容を推定しました
           </span>
         </div>
+        <WeightGraph />
+        <div className="mt-3 space-y-1">
+          <p className="text-[13px] text-muted">
+            10:45〜11:05 一度に大きく減少 → パレット降ろし（契約内）
+          </p>
+          <p className="text-[13px] font-bold text-accent-dark">
+            11:05〜11:30 少しずつ何度も減少 → 手作業の可能性
+          </p>
+        </div>
+      </Card>
+
+      <Card>
         <h2 className="text-lg font-bold text-navy mb-1">
           契約にない作業はありましたか？
         </h2>
@@ -1022,6 +1062,96 @@ function CostRow({
         <span className="text-base font-bold text-ink">{formatYen(cost)}</span>
       </div>
     </div>
+  );
+}
+
+function WeightGraph() {
+  // Graph: 10:45–11:30 (45 min). Width uses viewBox 0–300, height 0–100.
+  // 10:45–11:05 = 0–133: two big pallet drops (forklift)
+  // 11:05–11:30 = 133–300: 8 small hand-unload steps
+  const highlightX = 133;
+
+  // Polyline points for weight curve
+  const points = [
+    // start full
+    [0, 10],
+    // first pallet drop at ~5min
+    [15, 10],
+    [17, 45],
+    // flat
+    [60, 45],
+    // second pallet drop at ~15min
+    [62, 78],
+    // flat until 11:05
+    [133, 78],
+    // hand unloading: 8 small steps
+    [140, 78],
+    [142, 82],
+    [158, 82],
+    [160, 85],
+    [178, 85],
+    [180, 87],
+    [195, 87],
+    [197, 89],
+    [215, 89],
+    [217, 91],
+    [235, 91],
+    [237, 93],
+    [255, 93],
+    [257, 95],
+    [280, 95],
+    [282, 97],
+    [300, 97],
+  ]
+    .map(([x, y]) => `${x},${y}`)
+    .join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 300 120"
+      className="w-full h-[100px]"
+      preserveAspectRatio="none"
+    >
+      {/* tint highlight for 11:05–11:30 */}
+      <rect
+        x={highlightX}
+        y="0"
+        width={300 - highlightX}
+        height="100"
+        fill="#DCF1F3"
+      />
+      {/* "この区間" label */}
+      <text
+        x={(highlightX + 300) / 2}
+        y="12"
+        textAnchor="middle"
+        fontSize="10"
+        fill="#0A5C63"
+        fontWeight="bold"
+      >
+        この区間
+      </text>
+      {/* grid lines */}
+      <line x1="0" y1="100" x2="300" y2="100" stroke="#E5E7EB" strokeWidth="1" />
+      {/* weight line */}
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#1B2A41"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      {/* time axis labels */}
+      <text x="0" y="115" fontSize="9" fill="#6B7280">
+        10:45
+      </text>
+      <text x={highlightX} y="115" fontSize="9" fill="#6B7280" textAnchor="middle">
+        11:05
+      </text>
+      <text x="300" y="115" fontSize="9" fill="#6B7280" textAnchor="end">
+        11:30
+      </text>
+    </svg>
   );
 }
 
