@@ -379,7 +379,7 @@ function Step0({ onArrive }: { onArrive: () => void }) {
       </div>
 
       {/* 状況カード */}
-      <div className="bg-navy rounded-[14px] p-5">
+      <div className="bg-navy rounded-[14px] p-5 my-2">
         <p className="text-sm text-[#9EDDE3] mb-1">今回のあなた</p>
         <p className="text-2xl font-bold text-white">トラックドライバー</p>
         <div className="border-t border-white/20 my-3" />
@@ -412,7 +412,7 @@ function Step0({ onArrive }: { onArrive: () => void }) {
       <div className="flex-1 min-h-4" />
 
       {/* 進み方 */}
-      <div className="flex items-center justify-center gap-2 text-[13px] text-muted py-3">
+      <div className="flex items-center justify-center gap-2 text-[13px] text-muted pb-3">
         <span>待つ</span>
         <span className="text-gray-300">›</span>
         <span>契約外の作業を選ぶ</span>
@@ -750,7 +750,8 @@ function ShipperView({
           <h1 className="text-xl font-bold text-white">現場レシート</h1>
           <p className="text-sm text-[#9EDDE3] mt-1">確定済み</p>
         </div>
-        <div className="flex-1 px-4 pt-6 pb-6 space-y-5">
+        <div className="flex-1 flex flex-col px-4 pt-5">
+          {/* 確定バッジ */}
           <Card className="border-2 border-accent">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center">
@@ -762,27 +763,54 @@ function ShipperView({
             </div>
           </Card>
 
-          <div className="space-y-4 text-base text-ink leading-relaxed">
-            <p>
-              待った<span className="font-bold">45分</span>と、契約になかった
-              <span className="font-bold">25分</span>が、金額になりました。
+          {/* 結果カード */}
+          <Card className="mt-3">
+            <p className="text-base font-bold text-ink mb-3">
+              この1回の配送で確定した内容
             </p>
-            <p className="text-muted">
-              今はこの時間、記録も請求もされていません。
-            </p>
-            <p className="font-bold">
-              2027年4月、国が「契約外」を規制します。
-              <br />
-              測る道具を、間に合わせたい。
-            </p>
-          </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-baseline text-lg">
+                <span className="text-ink">有責待機</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-ink">45分</span>
+                  <span className="text-ink">{formatYen(WAIT_COST)}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-baseline text-lg">
+                <span className="text-ink">契約外作業</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-ink">25分</span>
+                  <span className="text-ink">{formatYen(EXTRA_COST)}</span>
+                </div>
+              </div>
+              <div className="border-t border-gray-200 pt-2">
+                <div className="flex justify-between items-baseline text-lg font-bold">
+                  <span className="text-ink">合計</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-ink">70分</span>
+                    <span className="text-ink">{formatYen(TOTAL_COST)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
 
-          <div className="pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-            <BigButton
-              label="もう一度やる"
-              color="#1B2A41"
+          {/* 一文 */}
+          <p className="text-base text-ink mt-4">
+            この70分は、今の現場では記録も請求もされていません。
+          </p>
+
+          {/* スペーサー */}
+          <div className="flex-1 min-h-6" />
+
+          {/* ボタン */}
+          <div className="pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <button
               onClick={onReset}
-            />
+              className="w-full h-[72px] rounded-xl bg-navy text-white text-lg font-bold active:scale-95 transition-transform duration-150"
+            >
+              もう一度やる
+            </button>
           </div>
         </div>
       </div>
