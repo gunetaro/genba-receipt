@@ -348,49 +348,50 @@ function Step0({ onArrive }: { onArrive: () => void }) {
   return (
     <div className="flex flex-col min-h-full">
       {/* リード文 */}
-      <div className="pt-2 pb-4">
-        <p className="text-[13px] text-muted mb-1">T conference 2026 提案デモ</p>
-        <p className="text-[20px] font-bold text-ink leading-snug">
+      <div className="pb-3">
+        <p className="text-[12px] text-muted mb-1">T conference 2026 提案デモ</p>
+        <p className="text-[22px] font-bold text-ink leading-snug">
           待った時間は、
           <br />
           今どこにも記録されていない
         </p>
-        <p className="text-[15px] text-ink leading-relaxed mt-3">
+        <p className="text-[14px] text-ink mt-3" style={{ lineHeight: 1.7 }}>
           トラックドライバーが荷主の倉庫で待った時間や、契約になかった作業を自動で記録し、そのまま請求できるようにする仕組みです。
           <br />
           実際にドライバーとして1回の配送を体験できます。
         </p>
-        <p className="text-[13px] text-muted mt-2">
+        <p className="text-[12px] text-muted mt-2">
           所要1分・タップするだけで進みます
         </p>
       </div>
 
       {/* 状況カード（白背景） */}
       <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-5">
-        <p className="text-[13px] text-accent">今回のあなた</p>
-        <p className="text-2xl font-bold text-ink">トラックドライバー</p>
+        <p className="text-[16px] font-bold text-accent-dark">
+          あなたは今からトラックドライバーです
+        </p>
         <div className="border-t border-[#E5E7EB] my-3" />
-        <p className="text-base text-ink">
+        <p className="text-[14px] text-ink">
           ◯◯物流センター 3番バース
         </p>
-        <p className="text-base text-ink mt-0.5">
+        <p className="text-[14px] text-ink mt-0.5">
           10時の約束で荷物を届けにきました
         </p>
         <div className="flex mt-4">
           <div className="flex-1">
-            <p className="text-[13px] text-muted">現在時刻</p>
-            <p className="text-[40px] font-bold text-ink leading-none mt-1">
+            <p className="text-[12px] text-muted">現在時刻</p>
+            <p className="text-[36px] font-bold text-ink leading-none mt-1">
               9:40
             </p>
           </div>
           <div className="flex-1">
-            <p className="text-[13px] text-muted">約束の時刻</p>
-            <p className="text-[40px] font-bold text-accent leading-none mt-1">
+            <p className="text-[12px] text-muted">約束の時刻</p>
+            <p className="text-[36px] font-bold text-accent leading-none mt-1">
               10:00
             </p>
           </div>
         </div>
-        <p className="text-sm text-muted mt-3">
+        <p className="text-[13px] text-muted mt-3">
           20分早く着いています
         </p>
       </div>
@@ -1074,7 +1075,7 @@ function CostRow({
 function StepIndicator({ step }: { step: DriverStep }) {
   // 0,1,2 → index 0 active; 3 → index 1 active; 4 → index 2 active
   const activeIndex = step <= 2 ? 0 : step === 3 ? 1 : 2;
-  const labels = ["待つ", "契約外の作業を選ぶ", "荷主の画面を見る"];
+  const labels = ["待機", "契約外の作業を選ぶ", "荷主の画面を見る"];
 
   return (
     <div
