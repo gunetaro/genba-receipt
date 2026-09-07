@@ -439,10 +439,14 @@ function Step1({
   const isPastAppointment = elapsedMin >= APPOINTMENT_MIN;
   const waitMin = isPastAppointment ? elapsedMin - APPOINTMENT_MIN : 0;
   const waitCost = calcWaitYen(waitMin);
-  const nextThreshold =
-    waitMin <= WAIT_FREE_MIN
-      ? WAIT_FREE_MIN - waitMin
-      : WAIT_UNIT_MIN - ((waitMin - WAIT_FREE_MIN) % WAIT_UNIT_MIN || WAIT_UNIT_MIN);
+  // Find how many more minutes until the cost increases
+  let nextThreshold = 1;
+  for (let m = waitMin + 1; m <= waitMin + WAIT_UNIT_MIN + 1; m++) {
+    if (calcWaitYen(m) > waitCost) {
+      nextThreshold = m - waitMin;
+      break;
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -463,9 +467,6 @@ function Step1({
           </div>
           <p className="text-sm text-muted mt-1">
             この時間は待機に数えません
-          </p>
-          <p className="text-sm text-gray-400 mt-2">
-            早着のため、まだ加算されていません
           </p>
         </Card>
       ) : (
@@ -873,7 +874,7 @@ function ShipperView({
             <CostRow
               label="有責待機"
               sub="10:00〜10:45"
-              detail="うち課金対象 15分 → 30分単位で1単位"
+              detail={`うち課金対象 ${Math.max(0, WAIT_MINUTES - WAIT_FREE_MIN)}分 → 30分単位で${Math.ceil(Math.max(0, WAIT_MINUTES - WAIT_FREE_MIN) / WAIT_UNIT_MIN)}単位`}
               minutes={WAIT_MINUTES}
               cost={WAIT_COST}
             />
@@ -881,7 +882,7 @@ function ShipperView({
             <CostRow
               label="契約外作業"
               sub="手降ろし・仕分け　11:05〜11:30"
-              detail="取卸料 1単位"
+              detail={`取卸料 ${Math.ceil(EXTRA_MINUTES / UNLOAD_UNIT_MIN)}単位`}
               minutes={EXTRA_MINUTES}
               cost={EXTRA_COST}
             />
