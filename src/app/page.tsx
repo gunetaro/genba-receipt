@@ -11,13 +11,28 @@ const APPOINTMENT_MIN = 20; // 10:00 = minute 20 from 9:40
 const LOADING_START_MIN = 65; // 10:45
 const DEPARTURE_MIN = 110; // 11:30
 
-const UNIT_WAIT = 3800; // ¥/h
-const UNIT_EXTRA = 3600; // ¥/h
+/* 標準的運賃（令和6年3月告示）中型車 */
+const WAIT_FREE_MIN = 30; // 最初の30分は無料
+const WAIT_UNIT_MIN = 30; // 30分単位
+const WAIT_UNIT_YEN = 1760; // 待機時間料 1単位
+const UNLOAD_UNIT_MIN = 30; // 取卸料 30分単位
+const UNLOAD_UNIT_YEN = 2100; // 取卸料 1単位
+
 const WAIT_MINUTES = 45; // 10:00~10:45
 const EXTRA_MINUTES = 25; // 11:05~11:30
-const WAIT_COST = Math.round((UNIT_WAIT / 60) * WAIT_MINUTES);
-const EXTRA_COST = Math.round((UNIT_EXTRA / 60) * EXTRA_MINUTES);
-const TOTAL_COST = WAIT_COST + EXTRA_COST;
+
+function calcWaitYen(waitMin: number): number {
+  const billable = Math.max(0, waitMin - WAIT_FREE_MIN);
+  return Math.ceil(billable / WAIT_UNIT_MIN) * WAIT_UNIT_YEN;
+}
+function calcUnloadYen(workMin: number): number {
+  if (workMin <= 0) return 0;
+  return Math.ceil(workMin / UNLOAD_UNIT_MIN) * UNLOAD_UNIT_YEN;
+}
+
+const WAIT_COST = calcWaitYen(WAIT_MINUTES); // 1,760
+const EXTRA_COST = calcUnloadYen(EXTRA_MINUTES); // 2,100
+const TOTAL_COST = WAIT_COST + EXTRA_COST; // 3,860
 
 function minuteToTime(min: number): string {
   const totalMin = min + 40; // offset from 9:00
@@ -423,7 +438,11 @@ function Step1({
   const currentTime = minuteToTime(elapsedMin);
   const isPastAppointment = elapsedMin >= APPOINTMENT_MIN;
   const waitMin = isPastAppointment ? elapsedMin - APPOINTMENT_MIN : 0;
-  const waitCost = Math.round((UNIT_WAIT / 60) * waitMin);
+  const waitCost = calcWaitYen(waitMin);
+  const nextThreshold =
+    waitMin <= WAIT_FREE_MIN
+      ? WAIT_FREE_MIN - waitMin
+      : WAIT_UNIT_MIN - ((waitMin - WAIT_FREE_MIN) % WAIT_UNIT_MIN || WAIT_UNIT_MIN);
 
   return (
     <div className="space-y-4">
@@ -461,14 +480,23 @@ function Step1({
             {waitMin}分
           </p>
           <p
-            className="text-[32px] font-bold text-ink leading-none mt-2 transition-colors duration-300"
+            className="text-[32px] font-bold text-ink leading-none mt-2"
             key={waitCost}
             style={{ animation: "cost-flash 0.4s ease-out" }}
           >
             {formatYen(waitCost)}
           </p>
-          <p className="text-[13px] text-muted mt-2">
-            待機時間料 3,800円/時 で計算しています
+          {waitMin <= WAIT_FREE_MIN ? (
+            <p className="text-[13px] text-muted mt-2">
+              30分までは運賃に含まれます
+            </p>
+          ) : (
+            <p className="text-[13px] text-muted mt-2">
+              次の加算まで あと{nextThreshold}分
+            </p>
+          )}
+          <p className="text-[13px] text-muted mt-1">
+            待機時間料 {formatYen(WAIT_UNIT_YEN)}／30分（標準的運賃・中型車）
           </p>
         </Card>
       )}
@@ -839,12 +867,13 @@ function ShipperView({
         <Card>
           <div className="flex justify-between items-baseline mb-3">
             <p className="text-sm font-bold text-navy">契約との差分</p>
-            <p className="text-xs text-muted">単価：契約書面より</p>
+            <p className="text-xs text-muted">標準的運賃</p>
           </div>
           <div className="border-t border-gray-200 pt-3 space-y-3">
             <CostRow
               label="有責待機"
               sub="10:00〜10:45"
+              detail="うち課金対象 15分 → 30分単位で1単位"
               minutes={WAIT_MINUTES}
               cost={WAIT_COST}
             />
@@ -852,6 +881,7 @@ function ShipperView({
             <CostRow
               label="契約外作業"
               sub="手降ろし・仕分け　11:05〜11:30"
+              detail="取卸料 1単位"
               minutes={EXTRA_MINUTES}
               cost={EXTRA_COST}
             />
@@ -864,8 +894,7 @@ function ShipperView({
             </div>
           </div>
           <p className="text-[10px] text-muted mt-2">
-            待機 {formatYen(UNIT_WAIT)}/時 ／ 附帯 {formatYen(UNIT_EXTRA)}
-            /時 で算出
+            標準的運賃（令和6年3月告示）中型車の水準で計算
           </p>
         </Card>
 
@@ -883,6 +912,10 @@ function ShipperView({
 
         <p className="text-xs text-muted text-center">
           ドライバーが選んだ内容が、そのまま届いています
+        </p>
+
+        <p className="text-[13px] text-muted text-center">
+          30分以内の待機は運賃に含まれるため、課金されていません
         </p>
 
         <Card>
@@ -1050,24 +1083,31 @@ function TimelineBar() {
 function CostRow({
   label,
   sub,
+  detail,
   minutes,
   cost,
 }: {
   label: string;
   sub: string;
+  detail?: string;
   minutes: number;
   cost: number;
 }) {
   return (
-    <div className="flex items-baseline justify-between">
-      <div>
-        <p className="text-sm text-ink">{label}</p>
-        <p className="text-[10px] text-muted">{sub}</p>
+    <div>
+      <div className="flex items-baseline justify-between">
+        <div>
+          <p className="text-sm text-ink">{label}</p>
+          <p className="text-[10px] text-muted">{sub}</p>
+        </div>
+        <div className="flex items-baseline gap-3">
+          <span className="text-xl font-bold text-accent">{minutes}分</span>
+          <span className="text-base font-bold text-ink">{formatYen(cost)}</span>
+        </div>
       </div>
-      <div className="flex items-baseline gap-3">
-        <span className="text-xl font-bold text-accent">{minutes}分</span>
-        <span className="text-base font-bold text-ink">{formatYen(cost)}</span>
-      </div>
+      {detail && (
+        <p className="text-[10px] text-muted mt-0.5">（{detail}）</p>
+      )}
     </div>
   );
 }
